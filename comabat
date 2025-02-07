@@ -1,0 +1,61 @@
+// Add a new Combat class
+static class Combat {
+    private int playerHealth = 100;
+    private int enemyHealth = 100;
+
+    void startCombat(String enemyName) {
+        System.out.println("A wild " + enemyName + " appears!");
+        Scanner scanner = new Scanner(System.in);
+
+        while (playerHealth > 0 && enemyHealth > 0) {
+            System.out.println("\nYour health: " + playerHealth);
+            System.out.println(enemyName + "'s health: " + enemyHealth);
+            System.out.print("What will you do? (attack/run): ");
+            String action = scanner.nextLine().toLowerCase();
+
+            if (action.equals("attack")) {
+                int playerDamage = (int) (Math.random() * 20) + 10;
+                int enemyDamage = (int) (Math.random() * 15) + 5;
+
+                enemyHealth -= playerDamage;
+                System.out.println("You dealt " + playerDamage + " damage to the " + enemyName + "!");
+
+                if (enemyHealth > 0) {
+                    playerHealth -= enemyDamage;
+                    System.out.println("The " + enemyName + " dealt " + enemyDamage + " damage to you!");
+                }
+            } else if (action.equals("run")) {
+                System.out.println("You ran away from the " + enemyName + "!");
+                break;
+            } else {
+                System.out.println("Invalid action!");
+            }
+        }
+
+        if (playerHealth <= 0) {
+            System.out.println("You were defeated by the " + enemyName + "!");
+        } else if (enemyHealth <= 0) {
+            System.out.println("You defeated the " + enemyName + "!");
+        }
+    }
+}
+
+// Update the Player class to include combat
+static class Player {
+    Room currentRoom;
+    HashMap<String, String> inventory;
+    Combat combat;
+
+    Player(Room startingRoom) {
+        this.currentRoom = startingRoom;
+        this.inventory = new HashMap<>();
+        this.combat = new Combat();
+    }
+
+    void fight(String enemyName) {
+        combat.startCombat(enemyName);
+    }
+}
+
+// Add enemies to rooms
+entrance.setNPC("goblin");
