@@ -1,0 +1,159 @@
+import java.util.HashMap;
+import java.util.Scanner;
+
+public class TextAdventureGame {
+
+    // Define the Room class
+    static class Room {
+        String description;
+        HashMap<String, Room> exits;
+        String item;
+
+        Room(String description) {
+            this.description = description;
+            this.exits = new HashMap<>();
+            this.item = null;
+        }
+
+        void setExit(String direction, Room neighbor) {
+            exits.put(direction, neighbor);
+        }
+
+        void setItem(String item) {
+            this.item = item;
+        }
+
+        String getDescription() {
+            return description;
+        }
+
+        Room getExit(String direction) {
+            return exits.get(direction);
+        }
+
+        String getItem() {
+            return item;
+        }
+
+        void removeItem() {
+            this.item = null;
+        }
+    }
+
+    // Define the Player class
+    static class Player {
+        Room currentRoom;
+        HashMap<String, String> inventory;
+
+        Player(Room startingRoom) {
+            this.currentRoom = startingRoom;
+            this.inventory = new HashMap<>();
+        }
+
+        void move(String direction) {
+            Room nextRoom = currentRoom.getExit(direction);
+            if (nextRoom != null) {
+                currentRoom = nextRoom;
+                System.out.println("You move to the " + currentRoom.getDescription() + ".");
+            } else {
+                System.out.println("You can't go that way!");
+            }
+        }
+
+        void takeItem() {
+            String item = currentRoom.getItem();
+            if (item != null) {
+                inventory.put(item, item);
+                currentRoom.removeItem();
+                System.out.println("You picked up the " + item + ".");
+            } else {
+                System.out.println("There's nothing to pick up here!");
+            }
+        }
+
+        void showInventory() {
+            if (inventory.isEmpty()) {
+                System.out.println("Your inventory is empty.");
+            } else {
+                System.out.println("Your inventory contains:");
+                for (String item : inventory.keySet()) {
+                    System.out.println(" - " + item);
+                }
+            }
+        }
+    }
+
+    // Main game loop
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Create rooms
+        Room entrance = new Room("Entrance");
+        Room hallway = new Room("Hallway");
+        Room kitchen = new Room("Kitchen");
+        Room livingRoom = new Room("Living Room");
+        Room bedroom = new Room("Bedroom");
+        Room garden = new Room("Garden");
+
+        // Set room exits
+        entrance.setExit("north", hallway);
+        hallway.setExit("south", entrance);
+        hallway.setExit("east", kitchen);
+        hallway.setExit("west", livingRoom);
+        kitchen.setExit("west", hallway);
+        livingRoom.setExit("east", hallway);
+        livingRoom.setExit("north", bedroom);
+        bedroom.setExit("south", livingRoom);
+        bedroom.setExit("east", garden);
+        garden.setExit("west", bedroom);
+
+        // Place items in rooms
+        kitchen.setItem("key");
+        livingRoom.setItem("book");
+        garden.setItem("treasure");
+
+        // Initialize player
+        Player player = new Player(entrance);
+
+        // Game introduction
+        System.out.println("Welcome to the Text Adventure Game!");
+        System.out.println("You find yourself at the entrance of an old house.");
+        System.out.println("Your goal is to find the treasure hidden somewhere in the house.");
+        System.out.println("Type 'help' for a list of commands.");
+
+        // Game loop
+        while (true) {
+            System.out.println("\nYou are in the " + player.currentRoom.getDescription() + ".");
+            System.out.print("What do you want to do? ");
+            String input = scanner.nextLine().toLowerCase();
+
+            if (input.equals("quit")) {
+                System.out.println("Thanks for playing! Goodbye!");
+                break;
+            } else if (input.equals("help")) {
+                System.out.println("Available commands:");
+                System.out.println(" - go [direction] (e.g., go north)");
+                System.out.println(" - take");
+                System.out.println(" - inventory");
+                System.out.println(" - quit");
+            } else if (input.startsWith("go ")) {
+                String direction = input.substring(3);
+                player.move(direction);
+            } else if (input.equals("take")) {
+                player.takeItem();
+            } else if (input.equals("inventory")) {
+                player.showInventory();
+            } else {
+                System.out.println("I don't understand that command. Type 'help' for a list of commands.");
+            }
+
+            // Check for win condition
+            if (player.inventory.containsKey("treasure")) {
+                System.out.println("\nCongratulations! You found the treasure and won the game!");
+                break;
+            }
+        }
+
+        scanner.close();
+    }
+}
